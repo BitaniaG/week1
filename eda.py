@@ -123,3 +123,63 @@ articles_per_day.plot(title='Articles per Day')
 plt.xlabel('Date')
 plt.ylabel('Number of Articles')
 plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from textblob import TextBlob
+
+# Load dataset
+df = pd.read_csv(r"C:\Users\bia\Desktop\week1\notebooks\data\raw_analyst_ratings.csv")
+
+# Optional: convert 'date' column to datetime if not already
+df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+
+# Example: adding headline length as numeric feature
+df['headline_length'] = df['headline'].apply(len)
+
+# Compute correlation matrix
+# Convert stock and headline_length to numeric, coercing errors to NaN
+df['stock'] = pd.to_numeric(df['stock'], errors='coerce')
+df['headline_length'] = pd.to_numeric(df['headline_length'], errors='coerce')
+
+# Drop rows with NaN in these columns
+df_clean = df.dropna(subset=['stock', 'headline_length'])
+
+# Compute correlation on cleaned data
+correlation_matrix = df_clean[['stock', 'headline_length']].corr()
+print("Correlation Matrix:\n", correlation_matrix)
+
+print("Correlation matrix:\n", correlation_matrix)
+
+# Visualize correlation
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+plt.title("Correlation Matrix")
+plt.show()
+
+
+# Function to calculate sentiment polarity
+def get_sentiment(text):
+    return TextBlob(str(text)).sentiment.polarity
+
+# Apply to headline column
+df['sentiment'] = df['headline'].apply(get_sentiment)
+
+# Basic statistics
+print(df['sentiment'].describe())
+
+# Plot sentiment distribution
+sns.histplot(df['sentiment'], bins=50, kde=True)
+plt.title("Headline Sentiment Distribution")
+plt.xlabel("Sentiment Polarity")
+plt.ylabel("Frequency")
+plt.show()
+
+
+sns.scatterplot(data=df, x='sentiment', y='stock')
+plt.title("Sentiment vs Stock Value")
+plt.xlabel("Sentiment Polarity")
+plt.ylabel("Stock")
+plt.show()
