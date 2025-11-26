@@ -1,1 +1,2 @@
 notebooks/raw_analyst_ratings.csv filter=lfs diff=lfs merge=lfs -text
+notebooks/data/raw_analyst_ratings.csv filter=lfs diff=lfs merge=lfs -text
