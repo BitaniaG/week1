@@ -123,3 +123,143 @@ articles_per_day.plot(title='Articles per Day')
 plt.xlabel('Date')
 plt.ylabel('Number of Articles')
 plt.show()
+
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from collections import Counter
+import nltk
+from nltk.corpus import stopwords
+
+
+# Load dataset
+df = pd.read_csv(r"C:\Users\bia\Downloads\newsData\raw_analyst_ratings.csv")
+
+# Download stopwords
+nltk.download('stopwords')
+
+# Headline Length Analysis
+# -------------------------------
+df['headline_length'] = df['headline'].apply(len)
+print("Headline Length Statistics:")
+print(df['headline_length'].describe())
+
+sns.histplot(df['headline_length'], bins=30)
+plt.title('Distribution of Headline Lengths')
+plt.xlabel('Headline Length')
+plt.ylabel('Frequency')
+plt.show()
+
+# -------------------------------
+# Articles Per Publisher
+# -------------------------------
+publisher_counts = df['publisher'].value_counts()
+print("\nTop 10 Publishers by Article Count:")
+print(publisher_counts.head(10))
+
+publisher_counts.head(10).plot(kind='bar', title='Top 10 Publishers')
+plt.ylabel('Number of Articles')
+plt.show()
+
+# -------------------------------
+# Keyword / Text Analysis (Top Words)
+# -------------------------------
+stop_words = set(stopwords.words('english'))
+all_words = ' '.join(df['headline'].dropna()).lower().split()
+filtered_words = [w for w in all_words if w not in stop_words]
+word_counts = Counter(filtered_words)
+
+print("\nTop 20 Most Common Words in Headlines:")
+print(word_counts.most_common(20))
+
+# -------------------------------
+# Articles Over Time
+# -------------------------------
+df['date'] = pd.to_datetime(df['date'], errors='coerce')
+df.set_index('date', inplace=True)
+articles_per_day = df.resample('D').size()
+
+articles_per_day.plot(title='Articles per Day')
+plt.xlabel('Date')
+plt.ylabel('Number of Articles')
+plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv(r"C:\Users\bia\Desktop\week1\notebooks\data\raw_analyst_ratings.csv")
+
+
+# Convert 'date' column to datetime
+df['date'] = pd.to_datetime(df['date'], errors='coerce')  # coerce invalid dates
+
+# Drop rows with invalid dates
+df = df.dropna(subset=['date'])
+
+# -------------------------
+# 1. Articles per day
+# -------------------------
+articles_per_day = df.groupby(df['date'].dt.date).size()
+
+plt.figure(figsize=(12,6))
+articles_per_day.plot()
+plt.title('Number of Articles Published Per Day')
+plt.xlabel('Date')
+plt.ylabel('Number of Articles')
+plt.tight_layout()
+plt.show()
+
+# -------------------------
+# 2. Articles per month
+# -------------------------
+articles_per_month = df.groupby(df['date'].dt.to_period('M')).size()
+
+plt.figure(figsize=(12,6))
+articles_per_month.plot(kind='bar')
+plt.title('Number of Articles Published Per Month')
+plt.xlabel('Month')
+plt.ylabel('Number of Articles')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# -------------------------
+# 3. Top 5 publishers over time
+# -------------------------
+top_publishers = df['publisher'].value_counts().head(5).index
+df_top = df[df['publisher'].isin(top_publishers)]
+
+# Group by date and publisher
+articles_top_publishers = df_top.groupby([df_top['date'].dt.date, 'publisher']).size().unstack()
+
+plt.figure(figsize=(12,6))
+articles_top_publishers.plot()
+plt.title('Top 5 Publishers: Articles Over Time')
+plt.xlabel('Date')
+plt.ylabel('Number of Articles')
+plt.tight_layout()
+plt.show()
+
+
+import matplotlib.pyplot as plt
+
+# Ensure 'date' column is in datetime format
+df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+# Group articles by month
+articles_per_month = df.groupby(df['date'].dt.to_period('M')).size()
+
+# Plotting
+plt.figure(figsize=(12,6))
+articles_per_month.plot(kind='line', marker='o')
+plt.title('Number of Articles Over Time')
+plt.xlabel('Month')
+plt.ylabel('Number of Articles')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
